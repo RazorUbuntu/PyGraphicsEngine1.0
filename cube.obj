@@ -1,5 +1,8 @@
 # Cube Object for Testing.
 
+
+# v = vertex: x, y, z
+
 v 0.0 0.0 0.0
 v 0.0 1.0 0.0
 v 1.0 1.0 0.0
@@ -8,6 +11,8 @@ v 1.0 1.0 1.0
 v 1.0 0.0 1.0
 v 0.0 1.0 1.0
 v 0.0 0.0 1.0
+
+# f = face: indexes
 
 f 0 1 2
 f 0 2 3
