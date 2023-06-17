@@ -1,7 +1,8 @@
 from settings import *
 from pygame import draw
 from math import sqrt
-
+from os import system
+import logging
 class Vec3D:
     def __init__(self, coord = (0,0,0)):
         self.x, self.y, self.z = coord[0], coord[1], coord[2]
@@ -90,6 +91,13 @@ class SqMatrix:
 
         return tempMat
     
+    def transpose(self):
+        for idx, rowlength in enumerate(range(self.size,0,-1)):
+            
+            for jdx in range(rowlength):
+                self.matrix[idx][jdx+idx], self.matrix[jdx+idx][idx] = self.matrix[jdx+idx][idx], self.matrix[idx][jdx+idx]
+            
+        return self
 
 
 ###############################
@@ -99,6 +107,8 @@ class SqMatrix:
 def MultiplyMatrixVector(inpVec : Vec3D, Matrix : SqMatrix):
 
     outVec = Vec3D()
+
+    Matrix = Matrix.transpose()
 
     outVec.x = inpVec.x * Matrix.matrix[0][0] + inpVec.y * Matrix.matrix[1][0] + inpVec.z * Matrix.matrix[2][0] + inpVec.w * Matrix.matrix[3][0]
 
@@ -138,9 +148,15 @@ def LoadFromObjFile(FilePath, size: float = 1.0):
                 elif line[0] == 'f':
                     temlis = (list(line[2:].split()))
                     faces.append(tuple(map(int, temlis)))
-                    
+        if faces == [] or vertices == []:
+            system('cls')
+            logging.ERROR(f'The File at {FilePath} does not exist or is not of .obj data type!')
+
         return faces, vertices
-    except:pass
+    except:
+        system('cls')
+        logging.error(f'The File at {FilePath} does not exist or is not of .obj data type!')
+        
 
 ###############################
 #        VECTOR FUNC          #
@@ -168,6 +184,4 @@ def CrossProduct(self, other):
     return vec
 
 ############### PROJECTION MATRIX #################
-
-
 

@@ -151,7 +151,7 @@ if __name__ == '__main__':
     
     mat_proj = ProjectionMatrix(mat_proj, fAspectRatio, fFovRad, fFov, fFar, fNear)
     vCamera = Vec3D()
-    meshCube.tris(LoadFromObjFile('cube.obj', 1.0))
+    meshCube.tris(LoadFromObjFile('C:\\Users\\saadi\\OneDrive\\Documents\\GitHub\\PyGraphics\\PyGraphicsEngine1.0\\Cleanit\\cube.obj', 1.0))
     
     ################################
 

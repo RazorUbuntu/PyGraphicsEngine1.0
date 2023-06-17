@@ -148,4 +148,13 @@ class SqMatrix:
 
         # Return the Resultant matrix from the Matrix Multiplication.
         return tempMat
+
+    def transpose(self):
+        for idx, rowlength in enumerate(range(self.size,0,-1)):
+            
+            for jdx in range(rowlength):
+                self.matrix[idx][jdx+idx], self.matrix[jdx+idx][idx] = self.matrix[jdx+idx][idx], self.matrix[idx][jdx+idx]
+            
+        return self
+            
     
