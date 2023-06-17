@@ -131,7 +131,7 @@ class SqMatrix:
         tempMat = SqMatrix(4) # Make an empty temp matrix
 
         for idx, row in enumerate(self.matrix): # Iterrate through self matrix rows
-            catche = [] # Set an Empty row list at the beginning of every iteration
+            cache = [] # Set an Empty row list at the beginning of every iteration
             
             for jdx, columns in enumerate(other.matrix[idx]):# Iterrate through other matrix columns
                 
@@ -141,10 +141,10 @@ class SqMatrix:
                     # Matrix calculation:
                     add += self.matrix[idx][index]*other.matrix[index][jdx] 
                     
-                catche.append(add) # An Element of the row of the resultant matrix.
+                cache.append(add) # An Element of the row of the resultant matrix.
 
             # Set to the new row.    
-            tempMat.matrix[row] = catche
+            tempMat.matrix[row] = cache
 
         # Return the Resultant matrix from the Matrix Multiplication.
         return tempMat
