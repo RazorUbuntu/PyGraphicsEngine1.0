@@ -5,6 +5,7 @@ from classesXFuncs import *
 from time import time
 from math import sqrt
 
+
 class GameEngine:
     def __init__(self):
         pg.init()
@@ -133,7 +134,7 @@ class GameEngine:
 if __name__ == '__main__':
     
     GE = GameEngine()
-    #! ON-USER-CREATE {
+    # ! ON-USER-CREATE {
          
     ################################
     #      CLASS DECLARATION:      #
@@ -151,10 +152,10 @@ if __name__ == '__main__':
     
     mat_proj = ProjectionMatrix(mat_proj, fAspectRatio, fFovRad, fFov, fFar, fNear)
     vCamera = Vec3D()
-    meshCube.tris(LoadFromObjFile('C:\\Users\\saadi\\OneDrive\\Documents\\GitHub\\PyGraphics\\PyGraphicsEngine1.0\\Cleanit\\cube.obj', 1.0))
+    meshCube.tris(LoadFromObjFile('Cleanit/cube.obj', 0.4))
     
     ################################
 
-    #! }
+    # ! }
     GE.run()
 

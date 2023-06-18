@@ -7,58 +7,71 @@
 ###############################
 
 from type_classes import *
+from Functions import *
 from Errors import *
+from SETTINGS import *
 
 ###############################
 #           Imports           #
 ###############################
 
-import pygame as PG
+import pygame as pg
 import sys
 from math import sqrt
+
 
 ###############################
 #            Begin            #
 ###############################
 
-class Game3DEngine: # The main class to start the Engine
+def check_event():  # Check for User Input / an Event
+    # Event loop
+    for event in pg.event.get():
 
-    def __init__(self, screen): # Initialize the mimum reqs
+        # Exit the Engine if either escape or the quit button is pressed.
+        if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.type == pg.K_ESCAPE):
+            # End the PyGame instance
+            pg.quit()
+
+            # Exit the interpreter
+            sys.exit()
+
+
+class Game3DEngine:  # The main class to start the Engine
+
+    def __init__(self):  # Initialize the minimum requirements
         # Pygame init func
-        PG.init()
+        pg.init()
 
-        # Deploy the Screen
-        self.screen = screen.Screen
+        # Deploy the Screen: TODO: Use Screen3D class
+        self.screen = pg.display.set_mode(RES)
 
         # An object to help keep track of time
-        self.clock = PG.time.Clock()
+        self.clock = pg.time.Clock()
+        self.current_time = self.clock.get_time() / 100
 
-    def Update(self): # Update the screen every call
+    def update(self):  # Update the screen every call
         # Update the entire screen
-        PG.display.flip() 
+        pg.display.flip()
 
         # Update the screen to this number of FramesPerSecond
-        self.clock.tick(FPS) 
+        self.clock.tick(FPS)
 
         # Show FPS next to the Icon
-        PG.display.set_caption(f'{self.clock.get_fps():.1f}')
-        self.current_time = self.clock.get_time()/100
+        pg.display.set_caption(f'{self.clock.get_fps():.1f}')
+        self.current_time = self.clock.get_time() / 100
 
-    def CheckEvent(self): # Check for User Input / an Event
-        # Event loop
-        for event in PG.event.get():
+    def draw(self):
+        self.screen.fill('black')
 
-            # Exit the Engine if either escape or the quit button is pressed.
-            if event.type == PG.QUIT or (event.type == PG.KEYDOWN and event.type == PG.K_ESCAPE):
+    def run(self):
 
-                # End the PyGame instance
-                PG.quit()
+        while True:
+            check_event()
+            self.update()
+            self.draw()
 
-                # Exit the interpreter
-                sys.exit()
-    def Run(self):
-        pass
 
 if __name__ == "__main__":
-
-    pass
+    ge3d = Game3DEngine()
+    ge3d.run()

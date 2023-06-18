@@ -43,7 +43,7 @@ class Triangle:
 
     def __repr__(self):
         return f'Triangle with vectors:\n{str(self.vectors)}\n'
-            
+
 
 class Mesh:
     def __init__(self):
@@ -76,27 +76,27 @@ class SqMatrix:
 
         for row in range(self.size):
             catche = []
-            
+
             add = 0
             for columns in range(other.size):
-                
+
                 add = 0
                 for index in range(self.size):
 
                     add += self.matrix[row][index]*other.matrix[index][columns]
-                    
+
                 catche.append(add)
-                
+
             tempMat.matrix[row] = catche
 
         return tempMat
-    
+
     def transpose(self):
         for idx, rowlength in enumerate(range(self.size,0,-1)):
-            
+
             for jdx in range(rowlength):
                 self.matrix[idx][jdx+idx], self.matrix[jdx+idx][idx] = self.matrix[jdx+idx][idx], self.matrix[idx][jdx+idx]
-            
+
         return self
 
 
@@ -108,8 +108,6 @@ def MultiplyMatrixVector(inpVec : Vec3D, Matrix : SqMatrix):
 
     outVec = Vec3D()
 
-    Matrix = Matrix.transpose()
-
     outVec.x = inpVec.x * Matrix.matrix[0][0] + inpVec.y * Matrix.matrix[1][0] + inpVec.z * Matrix.matrix[2][0] + inpVec.w * Matrix.matrix[3][0]
 
     outVec.y = inpVec.x * Matrix.matrix[0][1] + inpVec.y * Matrix.matrix[1][1] + inpVec.z * Matrix.matrix[2][1] + inpVec.w * Matrix.matrix[3][1]
@@ -120,7 +118,7 @@ def MultiplyMatrixVector(inpVec : Vec3D, Matrix : SqMatrix):
 
     if w != 0.0:
         outVec = outVec.div(w)
-    
+
     return outVec
 
 
@@ -137,26 +135,26 @@ def LoadFromObjFile(FilePath, size: float = 1.0):
     faces = []
     try:
         with open(FilePath, 'r')as ObjFile:
-            
+
             lines = ObjFile.readlines()
             for line in lines:
-                
+
                 if line[0] == 'v':
                     temlis = (list(line[2:].split()))
                     vertices.append(tuple(num*size for num in map(float, temlis)))
-                    
+
                 elif line[0] == 'f':
                     temlis = (list(line[2:].split()))
                     faces.append(tuple(map(int, temlis)))
         if faces == [] or vertices == []:
             system('cls')
-            logging.ERROR(f'The File at {FilePath} does not exist or is not of .obj data type!')
+            logging.error(f'The File at {FilePath} does not exist or is not of .obj data type!')
 
         return faces, vertices
     except:
         system('cls')
         logging.error(f'The File at {FilePath} does not exist or is not of .obj data type!')
-        
+
 
 ###############################
 #        VECTOR FUNC          #
