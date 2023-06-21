@@ -1,4 +1,4 @@
-# INFO:
+# INFO: STABLE RELEASE v1.0
 # This script holds the classes that are used within the Engine.
 
 from error import *

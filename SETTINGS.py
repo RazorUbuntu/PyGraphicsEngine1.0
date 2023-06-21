@@ -1,3 +1,4 @@
+# INFO: STABLE RELEASE v1.0
 # Import math
 from math import tan
 

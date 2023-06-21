@@ -1,4 +1,5 @@
-# INFO: Error Handling for self defined functions and classes
+# INFO: STABLE RELEASE v1.0
+# Error Handling for self defined functions and classes
 
 from sys import exit
 

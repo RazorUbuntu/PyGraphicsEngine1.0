@@ -1,4 +1,4 @@
-# INFO:
+# INFO: STABLE RELEASE v1.0
 # This is the base script that runs the screen and the given objects, physics, scripts etc.
 
 

@@ -1,8 +1,10 @@
 # PyGraphicsEngine
  A learning project made in order to learn the concepts behind 3D Graphics, Might build on from ground up a fully fledge Graphic Game Engine once enough is understood
 
-# Development Cycle: Testing and Learning
- Currently, at Testing and Learning stage, where I'd make spontanous changes within as to how this Engine functions.
+# Development Cycle: Stable Release v1.0
+ This release is the bare minimum of a graphics engine, yet it is the foundation of the future releases.
+ As for now, one can import a certain type of model and watch it spin around. change it's color uniformly and it's size on the screen.
+ Clipping has yet to be implemented hence out of bound model sizes might crash the script. so use it with care.
 
 # GOALS:
  1. Organized, Clean and Easily Understood code, Bug free if possible (pull requests contribute)
