@@ -1,9 +1,8 @@
 # INFO:
 # This script holds the classes that are used within the Engine.
 
-from Errors import *
+from error import *
 
-from os import system
 from pygame import display
 
 
@@ -14,16 +13,16 @@ class Screen3D:
         try:
             self.Label = label.title()
         except ValueError:
-            ShowErrorNExit(TypeOfError.Error(f"'Label'", f"'String'"))
+            show_error_n_exit(TypeOfError.error(f"'Label'", f"'String'"))
 
         # Fixed Set Resolution of the Screen.
         try:
             self.Resolution = tuple(map(int, resolution.lower().split(sep='x')))
 
             if len(self.Resolution) != 2:  # Resolution can only have two set numbers.
-                ShowErrorNExit(UnmatchedArgs.Error(f"Resolution of {self.Label} must be of 'Width x Height'", ))
+                show_error_n_exit(UnmatchedArgs.error(f"Resolution of {self.Label} must be of 'Width x Height'", ))
         except ValueError:
-            ShowErrorNExit(UnmatchedArgs.Error(f"Resolution of {self.Label} must be of 'Width x Height'", ))
+            show_error_n_exit(UnmatchedArgs.error(f"Resolution of {self.Label} must be of 'Width x Height'", ))
 
         # Pygame screen initialization.
         self.Screen = display.set_mode(self.Resolution)
@@ -77,19 +76,22 @@ class Vec3D:
 # The Triangle class holds 3 Vertex points to form a Face
 # Used in modelling 3D meshes.
 class Triangle:
-    def __init__(self, vec3ds=((0, 0, 0), (0, 0, 0), (0, 0, 0))):  # By default, the triangle has zero area
+    def __init__(self, vec3ds=((0, 0, 0), (0, 0, 0), (0, 0, 0)),
+                 lighting: float = None):  # By default, the triangle has zero area
 
+        self.lighting = lighting
         # define a list of 3D points
         self.vectors = []
-        # id_of = 0
+
+        # if it's a sequence of Vec3D objects then:
+        if isinstance(vec3ds[0], Vec3D):
+            for idx, vector in enumerate(vec3ds):
+                vec3ds[idx] = (vector.x, vector.y, vector.z)
 
         # Add the provided 3 points
         for vec in vec3ds:
-            # id_of += 1
-            # print(vec, id)
             self.vectors.append(Vec3D(vec))  # Add as Vector Object
         self.total_V = len(self.vectors)  # must always be 3 for a triangle
-        # print(self.total_V)
 
     def __repr__(self):
         # Represents the Triangle with it's 3 vectors.
@@ -107,6 +109,9 @@ class Mesh:
     def __repr__(self):
         return f'MeshCube : {self.name}'
 
+    def __call__(self):
+        return self.triangles
+
     def tris(self, faces_and_vertices):
         faces, vertices = faces_and_vertices
         # Add the Triangles of the 3D Mesh.
@@ -119,7 +124,7 @@ class Mesh:
 class SqMatrix:  # in numpy
     def __init__(self, size: int):  # initialize the size and a zero matrix,
         self.size = size
-        self.matrix = [[0 for col in range(size)] for row in range(size)]
+        self.matrix = [[0 for _ in range(size)] for __ in range(size)]
 
     def __repr__(self):
         # Represents the Matriz rows by row.
@@ -156,7 +161,7 @@ class SqMatrix:  # in numpy
 
             for jdx in range(row_length):
                 self.matrix[idx][jdx + idx], self.matrix[jdx + idx][idx] = self.matrix[jdx + idx][idx], \
-                self.matrix[idx][jdx + idx]
+                    self.matrix[idx][jdx + idx]
 
 
 def vertices_trans(indexes_list, vertices):

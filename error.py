@@ -2,7 +2,7 @@
 
 from sys import exit
 
-ERRORDICT = {
+ERROR_DICT = {
     # ERROR: blah {} blah {} , number of arguments
     
     # Error group 101: refers to type error or class error
@@ -15,20 +15,24 @@ ERRORDICT = {
     
 }
 
-class ErrorHandling3D:
-    def __init__(self, ErrorCode: int):
-        self.ErrorCode = ErrorCode
-        self.argnum = ERRORDICT[ErrorCode][-1]
 
-    def Error(self, *args):
-        return ''.join([item + f' {args[idx]} ' for idx, item in enumerate(ERRORDICT[self.ErrorCode][:-1])])
+class ErrorHandling3D:
+    def __init__(self, error_code: int):
+        self.ErrorCode = error_code
+        self.arg_num = ERROR_DICT[error_code][-1]
+
+    def error(self, *args):
+        return ''.join([item + f' {args[idx]} ' for idx, item in enumerate(ERROR_DICT[self.ErrorCode][:-1])])
+
 
 ###############################
 #       ERROR Functions       #
 ###############################
 
-def ShowErrorNExit(Error):
-    print(Error); exit()
+def show_error_n_exit(error):
+    print(error)
+    exit()
+
 
 ###############################
 #      ERROR Declaration      #

@@ -6,9 +6,8 @@
 #         Self Imports        #
 ###############################
 
-from type_classes import *
-from Functions import *
-from Errors import *
+from functions import *
+from type_classes import Mesh
 from SETTINGS import *
 
 ###############################
@@ -18,7 +17,6 @@ from SETTINGS import *
 import pygame as pg
 import sys
 from time import time
-from math import sqrt
 
 
 ###############################
@@ -50,7 +48,7 @@ class Game3DEngine:  # The main class to start the Engine
 
         # PRIVATE VARIABLES: FIXED
 
-        self.mat_prjct: SqMatrix = projection_matrix(f_aspect_ratio, f_fov_rad, f_fov, f_far, f_near)
+        self.mat_prjct: SqMatrix = projection_matrix(f_aspect_ratio, f_fov_rad, f_far, f_near)
         self.mat_trans: SqMatrix = translation_matrix(x=0.0, y=0.0, z=3.0)
         self.mat_ident: SqMatrix = identity_matrix()
 
@@ -59,6 +57,9 @@ class Game3DEngine:  # The main class to start the Engine
         self.f_theta  : float    = 0.0
         self.mat_rot_z: SqMatrix = SqMatrix(4)
         self.mat_rot_x: SqMatrix = SqMatrix(4)
+        self.mat_world: SqMatrix = SqMatrix(4)
+
+        self.light_direction = Vec3D((0.0, 0.0, -1.0))
 
         # Pygame init func
         pg.init()
@@ -71,7 +72,7 @@ class Game3DEngine:  # The main class to start the Engine
         self.init_time = time()
         self.current_time = None
 
-    def update(self):  # Update the screen every call
+    def update(self, alpha_speed=1.0):  # Update the screen every call
 
         # Update the entire screen
         pg.display.flip()
@@ -81,145 +82,120 @@ class Game3DEngine:  # The main class to start the Engine
 
         # Show FPS next to the Icon
         pg.display.set_caption(f'{self.clock.get_fps():.1f}')
-        self.current_time = self.init_time - time()
+        self.current_time = time() - self.init_time
 
         # Changing angle value as the cube rotates.
-        self.f_theta = self.current_time
+        self.f_theta = self.current_time * alpha_speed
 
         # Updating the rotational matrices with the new theta value.
         self.mat_rot_z = rotation_matrix_z(self.f_theta)
         self.mat_rot_x = rotation_matrix_x(self.f_theta)
 
-    def draw(self):  # not working
+        self.mat_world = self.mat_rot_z * self.mat_rot_x * self.mat_trans
+
+    def draw_triangles(self):  # Draw triangles on the screen.
+
         # clear the screen
         self.screen.fill('black')
         triangles: list = []
 
-        # for triangle in mesh_cube:
-        #     tri_rot_z = self.rotate_triangle_z(triangle)
-        #     # tri_rot_z_rot_x = self.rotate_triangle_x(tri_rot_z)
-        #     # tri_rot_z_rot_x_trans = self.translate_triangle(tri_rot_z_rot_x)
-        #     # tri_rot_z_rot_x_trans_prjct = self.project_triangle(tri_rot_z_rot_x_trans)
-        #
-        #     triangles.append(tri_rot_z_rot_x_trans_prjct)
-        #
-        # for triangle in triangles:
-        #     draw_triangle(self.screen, triangle)
+        # iterate through every triangle in the model.
+        for triangle in mesh_cube:
 
-        for tri in mesh_cube:
+            # rotate that face by the Z-axis
+            tri_rot_z = self.rotate_triangle_z(triangle)
 
-            triProjected, triTranslated = Triangle(), Triangle()
-            triRotatedZ, triRotatedZX = Triangle(), Triangle()
+            # rotate that face by the X-axis
+            tri_rot_z_rot_x = self.rotate_triangle_x(tri_rot_z)
 
-            for i in range(tri.total_V):
-                triRotatedZ.vectors[i] = multiply_matrix_vector_factory(tri.vectors[i], self.mat_rot_z)
-                triRotatedZX.vectors[i] = multiply_matrix_vector_factory(triRotatedZ.vectors[i], self.mat_rot_x)
+            # move that face through space
+            tri_rot_z_rot_x_trans = self.translate_triangle(tri_rot_z_rot_x)
 
-            # shift from origin
-            for i in range(tri.total_V):
-                triTranslated.vectors[i].x = triRotatedZX.vectors[i].x - 0.0
-                triTranslated.vectors[i].y = triRotatedZX.vectors[i].y - 0.0
-                triTranslated.vectors[i].z = triRotatedZX.vectors[i].z + 3.0
+            # find the vector lines of the triangle to find their face's normal
+            line_1 = tri_rot_z_rot_x_trans.vectors[0] - tri_rot_z_rot_x_trans.vectors[1]
+            line_2 = tri_rot_z_rot_x_trans.vectors[0] - tri_rot_z_rot_x_trans.vectors[2]
 
-            normal, line1, line2 = Vec3D(), Vec3D(), Vec3D()
+            # Cross Product of two vector lines is their normal
+            normal = cross_product(line_1, line_2)
 
-            line1.x = triTranslated.vectors[1].x - triTranslated.vectors[0].x
-            line1.y = triTranslated.vectors[1].y - triTranslated.vectors[0].y
-            line1.z = triTranslated.vectors[1].z - triTranslated.vectors[0].z
+            # Normalizing the Normal
+            len_normal = vector_length(normal)
+            normal.div(len_normal)
 
-            line2.x = triTranslated.vectors[2].x - triTranslated.vectors[0].x
-            line2.y = triTranslated.vectors[2].y - triTranslated.vectors[0].y
-            line2.z = triTranslated.vectors[2].z - triTranslated.vectors[0].z
+            # if the face is not in view, do not render it.
+            if dot_product(normal, (tri_rot_z_rot_x_trans.vectors[0] - self.vt_camera)) < 0:
 
-            normal.x = line1.y * line2.z - line1.z * line2.y
-            normal.y = line1.z * line2.x - line1.x * line2.z
-            normal.z = line1.x * line2.y - line1.y * line2.x
+                # project 3d to 2d:
+                tri_rot_z_rot_x_trans_prjct = self.project_triangle(tri_rot_z_rot_x_trans)
 
-            len_norm = sqrt(normal.x ** 2 + normal.y ** 2 + normal.z ** 2) + 5e-7
+                # Normalizing the directional light.
+                len_light_direction = vector_length(self.light_direction)
+                self.light_direction.div(len_light_direction)
 
-            normal.x /= len_norm
-            normal.y /= len_norm
-            normal.z /= len_norm
+                # Calculating the lighting and setting the face's lighting to it.
+                tri_rot_z_rot_x_trans_prjct.lighting = dot_product(normal, self.light_direction)
 
-            if normal.z < 0: pass
+                # Add the triangles to the list for sorting.
+                triangles.append(tri_rot_z_rot_x_trans_prjct)
 
-            if (normal.x * (triTranslated.vectors[0].x - self.vt_camera.x) +
-                    normal.y * (triTranslated.vectors[0].y - self.vt_camera.y) +
-                    normal.z * (triTranslated.vectors[0].z - self.vt_camera.z) < 0):
+        # Iterate through each triangle and get them drawn on the screen
+        for triangle in triangles:
+            lit_fill_color = mul_seq_const2tup(colors['white'], triangle.lighting)
 
-                light_direction = Vec3D((0.0, 0.0, -1.0))
+            # draws a filled triangle on the screen.
+            fill_triangle(self.screen, triangle, color=lit_fill_color)
+            # draws the outline of the triangle on the screen.
+            # draw_triangle(self.screen, triangle, color='black', width=)
 
-                len_light_direction = sqrt(
-                    light_direction.x ** 2 + light_direction.y ** 2 + light_direction.z ** 2) + 5e-7
-
-                light_direction.x /= len_light_direction
-                light_direction.y /= len_light_direction
-                light_direction.z /= len_light_direction
-
-                light_dp = normal.x * light_direction.x + normal.y * light_direction.y + normal.z * light_direction.z
-
-                # Transform 3d to 2d
-                for i in range(tri.total_V):
-                    triProjected.vectors[i] = multiply_matrix_vector_factory(triTranslated.vectors[i], self.mat_prjct)
-                    # SCALE TO VIEW
-                    triProjected.vectors[i].x += 1.0
-                    triProjected.vectors[i].y += 1.0
-
-                    triProjected.vectors[i].x *= 0.5 * WIDTH
-                    triProjected.vectors[i].y *= 0.5 * WIDTH
-
-                fill_triangle(self.screen, triProjected, color=(25.5 * light_dp * 10, 1 * light_dp * 10, 25.5 * light_dp * 10))
-
+    # Move a triangle in 3D space.
     def translate_triangle(self, triangle: Triangle):
 
         translation_mat = self.mat_trans
         vector_list: list = []
-        # print(triangle, 'LIST')
+
         # Iterates through each vector
         for vector in triangle.vectors:
-
             # multiplies it to the translation matrix and appends it to a set vector list.
             vector_list.append(multiply_matrix_vector_factory(vector, translation_mat))
-        # print(vector_list, 'DONE')
+
         return Triangle(vector_list)  # Returns the translated Triangle
 
+    # Rotate a triangle around its X-axis
     def rotate_triangle_x(self, triangle: Triangle):
         rotation_mat_x = self.mat_rot_x
         vector_list: list = []
-        # print(triangle, 'LIST')
+
         # Iterates through each vector
         for vector in triangle.vectors:
-
             # multiplies it to the rotation matrix and appends it to a set vector list.
             vector_list.append(multiply_matrix_vector_factory(vector, rotation_mat_x))
-        # print(vector_list, 'DONE')
+
         return Triangle(vector_list)  # Returns the rotated by X-axis Triangle
 
+    # Rotate a triangle around its Z-axis
     def rotate_triangle_z(self, triangle: Triangle):
         rotation_mat_z = self.mat_rot_z
         vector_list: list = []
-        # print(triangle, 'LIST')
+
         # Iterates through each vector
         for vector in triangle.vectors:
-
             # multiplies it to the rotation matrix and appends it to a set vector list.
             vector_list.append(multiply_matrix_vector_factory(vector, rotation_mat_z))
-        # print(vector_list, 'DONE')
+
         return Triangle(vector_list)  # Returns the rotated by Z-axis Triangle
 
+    # Project a triangle to the View/Screen
     def project_triangle(self, triangle: Triangle):
         projection_mat = self.mat_prjct
         vector_list: list = []
-        # print(triangle, 'LIST')
+
         # Iterates through each vector
         for vector in triangle.vectors:
-
-            # multiplies it to the rotation matrix and appends it to a set vector list.
+            # multiplies it to the projection matrix and appends it to a set vector list.
             vector_list.append(multiply_matrix_vector_factory(vector, projection_mat))
-        # print(vector_list, 'DONE')
+
         # Iterates through the projected vectors
         for vector in vector_list:
-
             # Scaling them into the View/Screen.
             vector.x += 1.0
             vector.y += 1.0
@@ -229,11 +205,33 @@ class Game3DEngine:  # The main class to start the Engine
 
         return Triangle(vector_list)  # Returns the projected Triangle
 
-    def run(self):
+    # World matrix optimizes all the calculations to be done only once with this matrix.
+    def world_triangle(self, triangle: Triangle):
+
+        world_mat = self.mat_world
+        vector_list: list = []
+
+        # Iterates through each vector
+        for vector in triangle.vectors:
+            # multiplies it to the world matrix and appends it to a set vector list.
+            vector_list.append(multiply_matrix_vector_factory(vector, world_mat))
+
+        # Iterates through the transformed vectors
+        for vector in vector_list:
+            # Scaling them into the View/Screen.
+            vector.x += 1.0
+            vector.y += 1.0
+
+            vector.x *= 0.5 * WIDTH
+            vector.y *= 0.5 * WIDTH
+
+        return Triangle(vector_list)  # Returns the transformed Triangle
+
+    def run(self):  # Starts all the Functions
         while True:
-            check_event()
-            self.update()
-            self.draw()
+            check_event()               # Check for user input
+            self.update()               # Update data
+            self.draw_triangles()       # Draw visuals
 
 
 if __name__ == "__main__":
@@ -243,7 +241,6 @@ if __name__ == "__main__":
 
     cube = Mesh("UnitCube")
     cube.tris(load_from_obj_file('cube.obj', 1.0))
-
-    mesh_cube = cube.triangles
+    mesh_cube = cube()
 
     ge3d.run()

@@ -1,9 +1,9 @@
 # This script will have hold of all the functions defined for usage in all around the project
 # except for Error Handling.
 
-from type_classes import Vec3D, Triangle, Mesh, SqMatrix
+from type_classes import Vec3D, Triangle, SqMatrix
 
-from math import sin, cos, tan, sqrt
+from math import sin, cos, sqrt
 from pygame import draw
 from os import system
 import logging
@@ -20,6 +20,14 @@ def sum_in_list(l1, l2) -> list:
         for idx, item in enumerate(l1):
             l2[idx] += item
         return l2
+
+
+# Multiplies a sequence's elements with a constant.
+def mul_seq_const2tup(seq, const) -> tuple:
+    list_ = list(seq)
+    for idx, element in enumerate(list_):
+        list_[idx] = element * const
+    return tuple(list_)
 
 
 ##########################
@@ -90,7 +98,7 @@ def translation_matrix(x: float, y: float, z: float) -> SqMatrix:
     return matrix
 
 
-def projection_matrix(f_aspect_ratio, f_fov_rad, f_fov, f_far, f_near) -> SqMatrix:
+def projection_matrix(f_aspect_ratio, f_fov_rad, f_far, f_near) -> SqMatrix:
     matrix = SqMatrix(4)
     matrix.matrix[0][0] = f_aspect_ratio * f_fov_rad
     matrix.matrix[1][1] = f_fov_rad
@@ -126,27 +134,27 @@ def rotation_matrix_x(f_theta) -> SqMatrix:
 #      VECTOR FUNCTIONS       #
 ###############################
 
-def dot_product(self, other) -> float:
-    return self.x * other.x + self.y * other.y + self.z * other.z
+def dot_product(vector_a, vector_b) -> float:
+    return vector_a.x * vector_b.x + vector_a.y * vector_b.y + vector_a.z * vector_b.z
 
 
-def vector_length(self) -> float:
-    return sqrt(dot_product(self, self))
+def vector_length(vector_a) -> float:
+    return sqrt(dot_product(vector_a, vector_a))
 
 
-def vector_normalise(self) -> Vec3D:
-    l: float = vector_length(self) + 1e-9
+def vector_normalise(vector_a) -> Vec3D:
+    l: float = vector_length(vector_a) + 1e-9
     vec = Vec3D()
-    vec.x, vec.y, vec.z = self.x / l, self.y / l, self.z / l
+    vec.x, vec.y, vec.z = vector_a.x / l, vector_a.y / l, vector_a.z / l
     return vec
 
 
-def cross_product(self, other) -> Vec3D:
+def cross_product(vector_a, vector_b) -> Vec3D:
     vec = Vec3D()
 
-    vec.x = self.y * other.z - self.z * other.y
-    vec.y = self.z * other.x - self.x * other.z
-    vec.z = self.x * other.y - self.y * other.x
+    vec.x = vector_a.y * vector_b.z - vector_a.z * vector_b.y
+    vec.y = vector_a.z * vector_b.x - vector_a.x * vector_b.z
+    vec.z = vector_a.x * vector_b.y - vector_a.y * vector_b.x
 
     return vec
 
@@ -197,12 +205,12 @@ def load_from_obj_file(file_path, size: float = 1.0) -> tuple:
             for line in lines:  # iterate through each line to determine whether one is face or a vertex.
 
                 if line[0] == 'v':  # if v is the starting character it is a vertex.
-                    temlis = (list(line[2:].split()))
-                    vertices.append(tuple(num * size for num in map(float, temlis)))
+                    temp_list = (list(line[2:].split()))
+                    vertices.append(tuple(num * size for num in map(float, temp_list)))
 
                 elif line[0] == 'f':  # if f is the starting character it is a face.
-                    temlis = (list(line[2:].split()))
-                    faces.append(tuple(map(int, temlis)))
+                    temp_list = (list(line[2:].split()))
+                    faces.append(tuple(map(int, temp_list)))
 
         # if there is no face or vertex, the file may be formatted different or is invalid.
         if faces == [] or vertices == []:
@@ -218,4 +226,8 @@ def load_from_obj_file(file_path, size: float = 1.0) -> tuple:
         logging.error(f'The File at {file_path} does not exist or is not of .obj data type!')
 
 
-print(load_from_obj_file('cube.obj', 1.0))
+def conv_to_tuple(vector_list: list) -> tuple:
+    temp = []
+    for vector in vector_list:
+        temp.append((vector.x, vector.y, vector.z))
+    return tuple(temp)
