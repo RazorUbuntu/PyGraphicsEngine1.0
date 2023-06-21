@@ -33,7 +33,6 @@ class Vec3D:
         return vec
 
 
-
 class Triangle:
     def __init__(self, vec3ds = ((0,0,0),(0,0,0),(0,0,0))):
         self.vectors = []
@@ -51,13 +50,14 @@ class Mesh:
 
     def tris(self, faces_and_vertices):
         for tri in faces_and_vertices[0]:
-            self.triangles.append(Triangle(self.vertice_trans(tri, faces_and_vertices[1])))
+            self.triangles.append(Triangle(self.vertices_trans(tri, faces_and_vertices[1])))
 
     def vertice_trans(self, vertices_list, vertices):
         vector_list = []
         for idx in vertices_list:
             vector_list.append(vertices[idx])
         return vector_list
+
 
 class SqMatrix:
     def __init__(self, size: int):

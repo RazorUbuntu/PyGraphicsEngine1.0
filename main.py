@@ -28,14 +28,13 @@ class GameEngine:
 
         # DRAW TRIS
         for tri in meshCube.triangles:
-            
+
             triProjected, triTranslated = Triangle(), Triangle()
             triRotatedZ, triRotatedZX = Triangle(), Triangle()
 
             for i in range(tri.total_V):
                 triRotatedZ.vectors[i] = MultiplyMatrixVector(tri.vectors[i], mat_rot_z)
                 triRotatedZX.vectors[i] = MultiplyMatrixVector(triRotatedZ.vectors[i], mat_rot_x)
-
 
             # shift from origin
             for i in range(tri.total_V):
@@ -57,19 +56,22 @@ class GameEngine:
             normal.y = line1.z * line2.x - line1.x * line2.z
             normal.z = line1.x * line2.y - line1.y * line2.x
 
-            len_norm = sqrt(normal.x**2 + normal.y**2 + normal.z**2) + 5e-7
+            len_norm = sqrt(normal.x ** 2 + normal.y ** 2 + normal.z ** 2) + 5e-7
 
-            normal.x /= len_norm; normal.y /= len_norm; normal.z /= len_norm
-            
-            if  normal.z < 0: pass
+            normal.x /= len_norm;
+            normal.y /= len_norm;
+            normal.z /= len_norm
 
-            if (normal.x * (triTranslated.vectors[0].x - vCamera.x) + 
-                normal.y * (triTranslated.vectors[0].y - vCamera.y) +
-                normal.z * (triTranslated.vectors[0].z - vCamera.z) < 0):
+            if normal.z < 0: pass
+
+            if (normal.x * (triTranslated.vectors[0].x - vCamera.x) +
+                    normal.y * (triTranslated.vectors[0].y - vCamera.y) +
+                    normal.z * (triTranslated.vectors[0].z - vCamera.z) < 0):
 
                 light_direction = Vec3D((0.0, 0.0, -1.0))
 
-                len_light_direction = sqrt(light_direction.x**2 + light_direction.y**2 + light_direction.z**2) + 5e-7
+                len_light_direction = sqrt(
+                    light_direction.x ** 2 + light_direction.y ** 2 + light_direction.z ** 2) + 5e-7
 
                 light_direction.x /= len_light_direction
                 light_direction.y /= len_light_direction
@@ -85,32 +87,25 @@ class GameEngine:
                     triProjected.vectors[i].y += 1.0
 
                     triProjected.vectors[i].x *= 0.5 * WIDTH
-                    triProjected.vectors[i].y *= 0.5 * WIDTH       
+                    triProjected.vectors[i].y *= 0.5 * WIDTH
 
                 FillTriangle(self.screen, triProjected.vectors[0].x,
-                            triProjected.vectors[0].y, triProjected.vectors[1].x, triProjected.vectors[1].y,
-                            triProjected.vectors[2].x, triProjected.vectors[2].y,
-                            color=(25.5 * light_dp * 10, 1 * light_dp * 10, 25.5 * light_dp * 10))        
-                
+                             triProjected.vectors[0].y, triProjected.vectors[1].x, triProjected.vectors[1].y,
+                             triProjected.vectors[2].x, triProjected.vectors[2].y,
+                             color=(25.5 * light_dp * 10, 1 * light_dp * 10, 25.5 * light_dp * 10))
+
                 # DrawTriangle(self.screen, triProjected.vectors[0].x,
                 #             triProjected.vectors[0].y, triProjected.vectors[1].x, triProjected.vectors[1].y,
                 #             triProjected.vectors[2].x, triProjected.vectors[2].y,
                 #             color=(0,0,0),
                 #             width = 3)
-                
+
                 # Store the triangles for sorting.
                 list_of_tri.append(triProjected)
 
-
-
-        # Rasterize Triangles       
+        # Rasterize Triangles
 
         for triProjected in list_of_tri: pass
-            
-            
-            
-            
-            
 
     def check_event(self):
         for event in pg.event.get():
@@ -120,42 +115,40 @@ class GameEngine:
 
     def run(self):
         global fTheta, mat_rot_x, mat_rot_z
-        
+
         while True:
             self.check_event()
             self.update()
             self.draw()
-            
+
             fTheta = self.current_time
             mat_rot_x = RotationMatrix_X(mat_rot_x, fTheta)
             mat_rot_z = RotationMatrix_Z(mat_rot_z, fTheta)
 
 
 if __name__ == '__main__':
-    
     GE = GameEngine()
     # ! ON-USER-CREATE {
-         
+
     ################################
     #      CLASS DECLARATION:      #
     ################################
-    
+
     meshCube = Mesh()
     mat_proj = SqMatrix(4)
     mat_rot_z = SqMatrix(4)
     mat_rot_x = SqMatrix(4)
     ident = SqMatrix(4)
-       
+
     ################################
     #      DEFINED VARIABLES:      #
     ################################
-    
+
     mat_proj = ProjectionMatrix(mat_proj, fAspectRatio, fFovRad, fFov, fFar, fNear)
     vCamera = Vec3D()
-    meshCube.tris(LoadFromObjFile('Cleanit/cube.obj', 0.4))
-    
+    meshCube.tris(LoadFromObjFile('Cleanit/cube.obj', 1.0))
+
     ################################
 
     # ! }
     GE.run()
-

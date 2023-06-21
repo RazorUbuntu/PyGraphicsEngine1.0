@@ -8,7 +8,6 @@ FPS: int = 144
 
 # Functional settings
 
-f_theta = 0
 f_near = 0.1
 f_far = 1000.0
 f_fov = 90

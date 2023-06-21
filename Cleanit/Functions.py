@@ -10,7 +10,7 @@ import logging
 
 
 # Sums one list's elements with the other.
-def sum_in_list(l1, l2):
+def sum_in_list(l1, l2) -> list:
     if len(l1) >= len(l2):
         for idx, item in enumerate(l2):
             l1[idx] += item
@@ -27,7 +27,7 @@ def sum_in_list(l1, l2):
 ##########################
 
 # It multiplies a Vector with a matrix.
-def multiply_matrix_vector(inp_vector: Vec3D, matrix: SqMatrix):
+def multiply_matrix_vector(inp_vector: Vec3D, matrix: SqMatrix) -> Vec3D:
     temp_cache, out_cache = [0, 0, 0, 0], [0, 0, 0, 0]
     v_cache = inp_vector.x, inp_vector.y, inp_vector.z, inp_vector.w
     m_cache = matrix.matrix
@@ -46,9 +46,31 @@ def multiply_matrix_vector(inp_vector: Vec3D, matrix: SqMatrix):
     return out_vector
 
 
+def multiply_matrix_vector_factory(inp_vec: Vec3D, matrix: SqMatrix) -> Vec3D:
+    out_vec = Vec3D()
+
+    out_vec.x = inp_vec.x * matrix.matrix[0][0] + inp_vec.y * matrix.matrix[1][0] + inp_vec.z * matrix.matrix[2][
+        0] + inp_vec.w * matrix.matrix[3][0]
+
+    out_vec.y = inp_vec.x * matrix.matrix[0][1] + inp_vec.y * matrix.matrix[1][1] + inp_vec.z * matrix.matrix[2][
+        1] + inp_vec.w * matrix.matrix[3][1]
+
+    out_vec.z = inp_vec.x * matrix.matrix[0][2] + inp_vec.y * matrix.matrix[1][2] + inp_vec.z * matrix.matrix[2][
+        2] + inp_vec.w * matrix.matrix[3][2]
+
+    out_vec.w = inp_vec.x * matrix.matrix[0][3] + inp_vec.y * matrix.matrix[1][3] + inp_vec.z * matrix.matrix[2][
+        3] + inp_vec.w * matrix.matrix[3][3]
+
+    if out_vec.w != 0.0:
+        out_vec = out_vec.div(out_vec.w)
+
+    return out_vec
+
+
 #   Pre-Defined Matrices   #
 
-def identity_matrix(matrix):
+def identity_matrix() -> SqMatrix:
+    matrix = SqMatrix(4)
     matrix.matrix[0][0] = 1.0
     matrix.matrix[1][1] = 1.0
     matrix.matrix[2][2] = 1.0
@@ -56,7 +78,8 @@ def identity_matrix(matrix):
     return matrix
 
 
-def translation_matrix(matrix, x: float, y: float, z: float):
+def translation_matrix(x: float, y: float, z: float) -> SqMatrix:
+    matrix = SqMatrix(4)
     matrix.matrix[0][0] = 1.0
     matrix.matrix[1][1] = 1.0
     matrix.matrix[2][2] = 1.0
@@ -67,7 +90,8 @@ def translation_matrix(matrix, x: float, y: float, z: float):
     return matrix
 
 
-def projection_matrix(matrix, f_aspect_ratio, f_fov_rad, f_fov, f_far, f_near):
+def projection_matrix(f_aspect_ratio, f_fov_rad, f_fov, f_far, f_near) -> SqMatrix:
+    matrix = SqMatrix(4)
     matrix.matrix[0][0] = f_aspect_ratio * f_fov_rad
     matrix.matrix[1][1] = f_fov_rad
     matrix.matrix[2][2] = f_far / (f_far - f_near)
@@ -76,7 +100,8 @@ def projection_matrix(matrix, f_aspect_ratio, f_fov_rad, f_fov, f_far, f_near):
     return matrix
 
 
-def rotation_matrix_z(matrix, f_theta):
+def rotation_matrix_z(f_theta) -> SqMatrix:
+    matrix = SqMatrix(4)
     matrix.matrix[0][0] = cos(f_theta)
     matrix.matrix[0][1] = sin(f_theta)
     matrix.matrix[1][0] = -sin(f_theta)
@@ -86,7 +111,8 @@ def rotation_matrix_z(matrix, f_theta):
     return matrix
 
 
-def rotation_matrix_x(matrix, f_theta):
+def rotation_matrix_x(f_theta) -> SqMatrix:
+    matrix = SqMatrix(4)
     matrix.matrix[0][0] = 1.0
     matrix.matrix[1][1] = cos(f_theta * 0.5)
     matrix.matrix[1][2] = sin(f_theta * 0.5)
@@ -100,22 +126,22 @@ def rotation_matrix_x(matrix, f_theta):
 #      VECTOR FUNCTIONS       #
 ###############################
 
-def dot_product(self, other):
+def dot_product(self, other) -> float:
     return self.x * other.x + self.y * other.y + self.z * other.z
 
 
-def vector_length(self):
+def vector_length(self) -> float:
     return sqrt(dot_product(self, self))
 
 
-def vector_normalise(self):
+def vector_normalise(self) -> Vec3D:
     l: float = vector_length(self) + 1e-9
     vec = Vec3D()
     vec.x, vec.y, vec.z = self.x / l, self.y / l, self.z / l
     return vec
 
 
-def cross_product(self, other):
+def cross_product(self, other) -> Vec3D:
     vec = Vec3D()
 
     vec.x = self.y * other.z - self.z * other.y
@@ -130,20 +156,37 @@ def cross_product(self, other):
 ###############################
 
 # This function creates a filled 3 sided polygon with set color.
-def fill_triangle(surface, x1, y1, x2, y2, x3, y3, color=0x2588):
+def fill_triangle(surface, triangle: Triangle, color=0x2588) -> None:
+    x1 = triangle.vectors[0].x
+    y1 = triangle.vectors[0].y
+
+    x2 = triangle.vectors[1].x
+    y2 = triangle.vectors[1].y
+
+    x3 = triangle.vectors[2].x
+    y3 = triangle.vectors[2].y
+
     draw.polygon(surface, color, [(x1, y1), (x2, y2), (x2, y2),
                                   (x3, y3), (x3, y3), (x1, y1)])
 
 
 # This function creates a hollow 3 sided polygon with set color and set width.
-def draw_triangle(surface, x1, y1, x2, y2, x3, y3, color=0x2588, width=1):
+def draw_triangle(surface, triangle: Triangle, color=0x2588, width=1) -> None:
+    x1 = triangle.vectors[0].x
+    y1 = triangle.vectors[0].y
+
+    x2 = triangle.vectors[1].x
+    y2 = triangle.vectors[1].y
+
+    x3 = triangle.vectors[2].x
+    y3 = triangle.vectors[2].y
+
     draw.polygon(surface, color, [(x1, y1), (x2, y2), (x2, y2),
                                   (x3, y3), (x3, y3), (x1, y1)], width=width)
 
 
 # This function loads a model into a mesh format from an object file. <.obj>
-def load_from_obj_file(file_path, size: float = 1.0):
-
+def load_from_obj_file(file_path, size: float = 1.0) -> tuple:
     # set some empty lists.
     vertices = []
     faces = []
@@ -173,3 +216,6 @@ def load_from_obj_file(file_path, size: float = 1.0):
     except FileNotFoundError:
         system('cls')
         logging.error(f'The File at {file_path} does not exist or is not of .obj data type!')
+
+
+print(load_from_obj_file('cube.obj', 1.0))
