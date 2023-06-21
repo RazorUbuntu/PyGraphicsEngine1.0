@@ -17,7 +17,7 @@ from SETTINGS import *
 import pygame as pg
 import sys
 from time import time
-
+import numpy as np
 
 ###############################
 #            Begin            #
@@ -42,29 +42,34 @@ def draw_triangles(surface, triangles):
         draw_triangle(surface, triangle, color='black', width=2.0)
 
 
+def lambda_sort_triangles(_triangle):
+    return -(_triangle.vectors[0].z + _triangle.vectors[1].z + _triangle.vectors[2].z) / 3.0
+
+
 class Game3DEngine:  # The main class to start the Engine
 
     def __init__(self):  # Initialize the minimum requirements
 
         # PRIVATE VARIABLES: FIXED
+        # -------------------------------------------------------------------------------------- #
+        self.mat_prjct: np.ndarray = projection_matrix(f_aspect_ratio, f_fov_rad, f_far, f_near)
+        self.mat_trans: np.ndarray = translation_matrix(x=0.0, y=0.0, z=8.0)
+        self.mat_ident: np.ndarray = identity_matrix()
 
-        self.mat_prjct: SqMatrix = projection_matrix(f_aspect_ratio, f_fov_rad, f_far, f_near)
-        self.mat_trans: SqMatrix = translation_matrix(x=0.0, y=0.0, z=3.0)
-        self.mat_ident: SqMatrix = identity_matrix()
+        self.vt_camera: Vec3D      = Vec3D()
 
-        self.vt_camera: Vec3D    = Vec3D()
-
-        self.f_theta  : float    = 0.0
-        self.mat_rot_z: SqMatrix = SqMatrix(4)
-        self.mat_rot_x: SqMatrix = SqMatrix(4)
-        self.mat_world: SqMatrix = SqMatrix(4)
+        self.f_theta  : float      = 0.0
+        self.mat_rot_z: np.ndarray = identity_matrix()
+        self.mat_rot_x: np.ndarray = identity_matrix()
+        self.mat_world: np.ndarray = identity_matrix()
 
         self.light_direction = Vec3D((0.0, 0.0, -1.0))
+        # -------------------------------------------------------------------------------------- #
 
         # Pygame init func
         pg.init()
 
-        # Deploy the Screen: TODO: Use Screen3D class
+        # Deploy the Screen with set resolutiion: TODO: Use Screen3D class
         self.screen = pg.display.set_mode(RES)
 
         # An object to help keep track of time
@@ -91,7 +96,6 @@ class Game3DEngine:  # The main class to start the Engine
         self.mat_rot_z = rotation_matrix_z(self.f_theta)
         self.mat_rot_x = rotation_matrix_x(self.f_theta)
 
-        self.mat_world = self.mat_rot_z * self.mat_rot_x * self.mat_trans
 
     def draw_triangles(self):  # Draw triangles on the screen.
 
@@ -138,14 +142,17 @@ class Game3DEngine:  # The main class to start the Engine
                 # Add the triangles to the list for sorting.
                 triangles.append(tri_rot_z_rot_x_trans_prjct)
 
-        # Iterate through each triangle and get them drawn on the screen
-        for triangle in triangles:
-            lit_fill_color = mul_seq_const2tup(colors['white'], triangle.lighting)
+        sorted_triangles = sorted(triangles, key=lambda _triangle: lambda_sort_triangles(_triangle))
 
+        # Iterate through each triangle and get them drawn on the screen
+        for triangle in sorted_triangles:
+
+            lit_fill_color = mul_seq_const2tup(colors['white'], triangle.lighting*LIGHT_CONST)
             # draws a filled triangle on the screen.
             fill_triangle(self.screen, triangle, color=lit_fill_color)
+
             # draws the outline of the triangle on the screen.
-            # draw_triangle(self.screen, triangle, color='black', width=)
+            draw_triangle(self.screen, triangle, color='black', width=1)
 
     # Move a triangle in 3D space.
     def translate_triangle(self, triangle: Triangle):
@@ -156,7 +163,8 @@ class Game3DEngine:  # The main class to start the Engine
         # Iterates through each vector
         for vector in triangle.vectors:
             # multiplies it to the translation matrix and appends it to a set vector list.
-            vector_list.append(multiply_matrix_vector_factory(vector, translation_mat))
+            out_vec = multiply_matrix_vector_factory(vector, translation_mat)
+            vector_list.append(out_vec.div(out_vec.w))
 
         return Triangle(vector_list)  # Returns the translated Triangle
 
@@ -168,7 +176,8 @@ class Game3DEngine:  # The main class to start the Engine
         # Iterates through each vector
         for vector in triangle.vectors:
             # multiplies it to the rotation matrix and appends it to a set vector list.
-            vector_list.append(multiply_matrix_vector_factory(vector, rotation_mat_x))
+            out_vec = multiply_matrix_vector_factory(vector, rotation_mat_x)
+            vector_list.append(out_vec.div(out_vec.w))
 
         return Triangle(vector_list)  # Returns the rotated by X-axis Triangle
 
@@ -180,7 +189,8 @@ class Game3DEngine:  # The main class to start the Engine
         # Iterates through each vector
         for vector in triangle.vectors:
             # multiplies it to the rotation matrix and appends it to a set vector list.
-            vector_list.append(multiply_matrix_vector_factory(vector, rotation_mat_z))
+            out_vec = multiply_matrix_vector_factory(vector, rotation_mat_z)
+            vector_list.append(out_vec.div(out_vec.w))
 
         return Triangle(vector_list)  # Returns the rotated by Z-axis Triangle
 
@@ -192,7 +202,8 @@ class Game3DEngine:  # The main class to start the Engine
         # Iterates through each vector
         for vector in triangle.vectors:
             # multiplies it to the projection matrix and appends it to a set vector list.
-            vector_list.append(multiply_matrix_vector_factory(vector, projection_mat))
+            out_vec = multiply_matrix_vector_factory(vector, projection_mat)
+            vector_list.append(out_vec.div(out_vec.w))
 
         # Iterates through the projected vectors
         for vector in vector_list:
@@ -214,7 +225,8 @@ class Game3DEngine:  # The main class to start the Engine
         # Iterates through each vector
         for vector in triangle.vectors:
             # multiplies it to the world matrix and appends it to a set vector list.
-            vector_list.append(multiply_matrix_vector_factory(vector, world_mat))
+            out_vec = multiply_matrix_vector_factory(vector, world_mat)
+            vector_list.append(out_vec.div(out_vec.w))
 
         # Iterates through the transformed vectors
         for vector in vector_list:
@@ -240,7 +252,7 @@ if __name__ == "__main__":
     # PUBLIC VARIABLES
 
     cube = Mesh("UnitCube")
-    cube.tris(load_from_obj_file('cube.obj', 1.0))
+    cube.tris(load_from_obj_file('space_ship.obj', 1.0))
     mesh_cube = cube()
 
     ge3d.run()

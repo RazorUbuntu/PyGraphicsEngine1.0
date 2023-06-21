@@ -5,6 +5,8 @@ from error import *
 
 from pygame import display
 
+import numpy as np
+
 
 # The screen class Handles the properties of a screen.
 class Screen3D:
@@ -119,56 +121,11 @@ class Mesh:
             self.triangles.append(Triangle(vertices_trans(tri, vertices)))
 
 
-# Square Matrix Class: Math Concept of an Array of rows and columns.
-# Used for making 3D to 2D transformation Matrices, etc.
-class SqMatrix:  # in numpy
-    def __init__(self, size: int):  # initialize the size and a zero matrix,
-        self.size = size
-        self.matrix = [[0 for _ in range(size)] for __ in range(size)]
-
-    def __repr__(self):
-        # Represents the Matriz rows by row.
-        represent = ''
-        for row in self.matrix:
-            represent += f'{row}\n'
-        return represent
-
-    def __mul__(self, other):  # Matrix-Matrix Multiplication
-
-        tempMat = SqMatrix(4)  # Make an empty temp matrix
-
-        for idx, row in enumerate(self.matrix):  # Iterate through self matrix rows
-            cache = []  # Set an Empty row list at the beginning of every iteration
-
-            for jdx, columns in enumerate(other.matrix[idx]):  # Iterate through other matrix columns
-
-                add = 0  # set to zero at the beginning of every iteration
-                for index in range(self.size):  # iterate using the size
-
-                    # Matrix calculation:
-                    add += self.matrix[idx][index] * other.matrix[index][jdx]
-
-                cache.append(add)  # An Element of the row of the resultant matrix.
-
-            # Set to the new row.    
-            tempMat.matrix[idx] = cache
-
-        # Return the Resultant matrix from the Matrix Multiplication.
-        return tempMat
-
-    def transpose(self):
-        for idx, row_length in enumerate(range(self.size, 0, -1)):
-
-            for jdx in range(row_length):
-                self.matrix[idx][jdx + idx], self.matrix[jdx + idx][idx] = self.matrix[jdx + idx][idx], \
-                    self.matrix[idx][jdx + idx]
-
-
 def vertices_trans(indexes_list, vertices):
     # Adds Vectors from the VectorFaceData to a temporary list.
     vector_list: list = []
     for idx in indexes_list:
-        vector_list.append(vertices[idx])
+        vector_list.append(vertices[idx-1])
 
     # returns the formed Triangle
     return vector_list

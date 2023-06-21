@@ -5,7 +5,7 @@ from math import tan
 # Game settings
 RES = WIDTH, HEIGHT = 720, 720
 PIXEL = 4, 4
-FPS: int = 500 # Max limit of FPS by pygame is 500 it seems
+FPS: int = 500  # Max limit of FPS by pygame is 500 it seems
 
 # Functional settings
 
@@ -15,7 +15,12 @@ f_fov = 90
 f_aspect_ratio = WIDTH / HEIGHT
 f_fov_rad = 1.0 / tan(f_fov * 0.5 / 180 * 3.14159)
 
+
+empty_mat_data = [[0.0 for _ in range(4)] for __ in range(4)]
+
 # Colours:
+
+LIGHT_CONST = 0.58
 
 colors: dict = {
     'black'         : [0  ,   0,   0],
