@@ -6,18 +6,17 @@
  As for now, one can import a certain type of model and watch it spin around. change it's color uniformly and it's size on the screen.
  Clipping has yet to be implemented hence out of bound model sizes might crash the script. so use it with care.
 
-# GOALS:
- 1. Organized, Clean and Easily Understood code, Bug free if possible (pull requests contribute)
+# Features of v1.0:
+ 1. Organized, Clean and Easily Understood code, Bug free (pull requests contribute)
 
- 2. Optimized to be a Considerable option as a 3D Game Engine for small games.
+ 2. Any Model of set format can be loaded into the engine. {obj}
 
- 3. Make it recognize any type of object file. {obj}
- (Might get support for other 3D files in the future)
+ 3. Choose a Uniform colour from a diverse selection of a 18! colors.
 
- 4. Develope a Basic Physics Engine.
+ 4. Set a size of the model, if you do enough digging you can find even the way to offset the model.
 
- 5. Be Able to create your own scripts to assist the developing games.
+ 5. Set the speed of rotation and watch your model spin around.
 
- 6. Create an Intuitive 3D Graphic Developement Environment.
+ 6. View it with a Wireframe or pure 3D object or 3D object with Wireframe
 
  For the time Being that's all that comes to mind for the future
