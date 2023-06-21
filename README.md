@@ -19,4 +19,4 @@
 
  6. View it with a Wireframe or pure 3D object or 3D object with Wireframe
 
- For the time Being that's all that comes to mind for the future
+ That's all for Stable Release v1.0, More will be implemented in the coming days
