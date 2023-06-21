@@ -5,7 +5,7 @@ from math import tan
 # Game settings
 RES = WIDTH, HEIGHT = 720, 720
 PIXEL = 4, 4
-FPS: int = 240
+FPS: int = 500 # Max limit of FPS by pygame is 500 it seems
 
 # Functional settings
 

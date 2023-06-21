@@ -83,13 +83,13 @@ class Triangle:
         # define a list of 3D points
         self.vectors = []
 
-        # if it's a sequence of Vec3D objects then:
-        if isinstance(vec3ds[0], Vec3D):
-            for idx, vector in enumerate(vec3ds):
-                vec3ds[idx] = (vector.x, vector.y, vector.z)
-
         # Add the provided 3 points
         for vec in vec3ds:
+            
+            # if the vector is a Vec3D object then:
+            if isinstance(vec, Vec3D):
+                vec = (vec.x, vec.y, vec.z)
+        
             self.vectors.append(Vec3D(vec))  # Add as Vector Object
         self.total_V = len(self.vectors)  # must always be 3 for a triangle
 
