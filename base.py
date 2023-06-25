@@ -23,3 +23,5 @@ from time import time
 #            Begin            #
 ###############################
 
+class GameEngine3D:
+    def __init__(): pass
