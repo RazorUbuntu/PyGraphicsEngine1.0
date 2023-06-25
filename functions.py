@@ -9,6 +9,7 @@ from pygame import draw
 from os import system
 import logging
 import numpy as np
+from SETTINGS import *
 
 # Sums one list's elements with the other.
 def sum_in_list(l1, l2) -> list:
