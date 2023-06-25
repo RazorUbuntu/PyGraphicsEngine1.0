@@ -20,7 +20,7 @@ empty_mat_data = [[0.0 for _ in range(4)] for __ in range(4)]
 
 # Colours:
 
-LIGHT_CONST = 0.58
+LIGHT_CONST = 0.00028
 
 colors: dict = {
     'black'         : [0  ,   0,   0],

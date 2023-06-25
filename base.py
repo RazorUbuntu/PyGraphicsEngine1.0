@@ -35,17 +35,17 @@ def check_event():  # Check for User Input / an Event
             # Exit the interpreter
             sys.exit()
 
-
-def draw_triangles(surface, triangles):
-    for triangle in triangles:
-        fill_triangle(surface, triangle, color='white')
-        draw_triangle(surface, triangle, color='black', width=2.0)
-
-
 def lambda_sort_triangles(_triangle):
     return -(_triangle.vectors[0].z + _triangle.vectors[1].z + _triangle.vectors[2].z) / 3.0
 
+def find_normal_of_tri(triangle) -> Vec3D:
+    # find the vector lines of the triangle to find their face's normal
+    line_1 = triangle.vectors[0] - triangle.vectors[1]
+    line_2 = triangle.vectors[0] - triangle.vectors[2]
 
+    # Cross Product of two vector lines is their normal
+    normal = cross_product(line_1, line_2)
+    return normal
 class Game3DEngine:  # The main class to start the Engine
 
     def __init__(self):  # Initialize the minimum requirements
@@ -115,12 +115,8 @@ class Game3DEngine:  # The main class to start the Engine
             # move that face through space
             tri_rot_z_rot_x_trans = self.translate_triangle(tri_rot_z_rot_x)
 
-            # find the vector lines of the triangle to find their face's normal
-            line_1 = tri_rot_z_rot_x_trans.vectors[0] - tri_rot_z_rot_x_trans.vectors[1]
-            line_2 = tri_rot_z_rot_x_trans.vectors[0] - tri_rot_z_rot_x_trans.vectors[2]
-
             # Cross Product of two vector lines is their normal
-            normal = cross_product(line_1, line_2)
+            normal = find_normal_of_tri(tri_rot_z_rot_x_trans)
 
             # Normalizing the Normal
             len_normal = vector_length(normal)
@@ -132,13 +128,6 @@ class Game3DEngine:  # The main class to start the Engine
                 # project 3d to 2d:
                 tri_rot_z_rot_x_trans_prjct = self.project_triangle(tri_rot_z_rot_x_trans)
 
-                # Normalizing the directional light.
-                len_light_direction = vector_length(self.light_direction)
-                self.light_direction.div(len_light_direction)
-
-                # Calculating the lighting and setting the face's lighting to it.
-                tri_rot_z_rot_x_trans_prjct.lighting = dot_product(normal, self.light_direction)
-
                 # Add the triangles to the list for sorting.
                 triangles.append(tri_rot_z_rot_x_trans_prjct)
 
@@ -147,7 +136,16 @@ class Game3DEngine:  # The main class to start the Engine
         # Iterate through each triangle and get them drawn on the screen
         for triangle in sorted_triangles:
 
-            lit_fill_color = mul_seq_const2tup(colors['white'], triangle.lighting*LIGHT_CONST)
+            normal = find_normal_of_tri(triangle)
+
+            # Normalizing the directional light.
+            len_light_direction = vector_length(self.light_direction)
+            self.light_direction = self.light_direction.div(len_light_direction)
+
+            # Calculating the lighting and setting the face's lighting to it.
+            light_dp = dot_product(normal, self.light_direction)
+
+            lit_fill_color = mul_seq_const2tup(colors['white'], light_dp*LIGHT_CONST)
             # draws a filled triangle on the screen.
             fill_triangle(self.screen, triangle, color=lit_fill_color)
 
