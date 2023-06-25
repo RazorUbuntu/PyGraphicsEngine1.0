@@ -37,21 +37,6 @@ class Game3DEngine:  # The main class to start the Engine
     def __init__(self):  # Initialize the minimum requirements
 
         # PRIVATE VARIABLES: FIXED
-<<<<<<< Updated upstream
-
-        self.mat_prjct: SqMatrix = projection_matrix(f_aspect_ratio, f_fov_rad, f_far, f_near)
-        self.mat_trans: SqMatrix = translation_matrix(x=0.0, y=0.0, z=3.0)
-        self.mat_ident: SqMatrix = identity_matrix()
-
-        self.vt_camera: Vec3D    = Vec3D()
-
-        self.f_theta  : float    = 0.0
-        self.mat_rot_z: SqMatrix = SqMatrix(4)
-        self.mat_rot_x: SqMatrix = SqMatrix(4)
-        self.mat_world: SqMatrix = SqMatrix(4)
-
-        self.light_direction = Vec3D((0.0, 0.0, -1.0))
-=======
         # -------------------------------------------------------------------------------------- #
         self.mat_prjct      : np.ndarray = projection_matrix(f_aspect_ratio, f_fov_rad, f_far, f_near)
         self.mat_trans      : np.ndarray = translation_matrix(x=0.0, y=0.0, z=15.0)
@@ -72,7 +57,6 @@ class Game3DEngine:  # The main class to start the Engine
 
         self.mat_view       : np.ndarray = quick_inverse(self.mat_camera)
         # -------------------------------------------------------------------------------------- #
->>>>>>> Stashed changes
 
         # Pygame init func
         pg.init()
@@ -176,14 +160,9 @@ class Game3DEngine:  # The main class to start the Engine
 
             # draws a filled triangle on the screen.
             fill_triangle(self.screen, triangle, color=lit_fill_color)
-<<<<<<< Updated upstream
-            # draws the outline of the triangle on the screen.
-            # draw_triangle(self.screen, triangle, color='black', width=)
-=======
 
             # # draws the outline of the triangle on the screen.
             # draw_triangle(self.screen, triangle, color='black', width=1)
->>>>>>> Stashed changes
 
     # Move a triangle in 3D space.
     def translate_triangle(self, triangle: Triangle):
@@ -289,14 +268,8 @@ if __name__ == "__main__":
 
     # PUBLIC VARIABLES
 
-<<<<<<< Updated upstream
-    cube = Mesh("UnitCube")
-    cube.tris(load_from_obj_file('cube.obj', 1.0))
-    mesh_cube = cube()
-=======
     axis = Mesh("Unitaxis")
     axis.tris(load_from_obj_file('axis.obj', 1.0))
     mesh = axis()
->>>>>>> Stashed changes
 
     ge3d.run()
