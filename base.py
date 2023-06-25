@@ -23,17 +23,7 @@ from time import time
 #            Begin            #
 ###############################
 
-def check_event():  # Check for User Input / an Event
-    # Event loop
-    for event in pg.event.get():
 
-        # Exit the Engine if either escape or the quit button is pressed.
-        if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.type == pg.K_ESCAPE):
-            # End the PyGame instance
-            pg.quit()
-
-            # Exit the interpreter
-            sys.exit()
 
 
 def draw_triangles(surface, triangles):
@@ -47,6 +37,7 @@ class Game3DEngine:  # The main class to start the Engine
     def __init__(self):  # Initialize the minimum requirements
 
         # PRIVATE VARIABLES: FIXED
+<<<<<<< Updated upstream
 
         self.mat_prjct: SqMatrix = projection_matrix(f_aspect_ratio, f_fov_rad, f_far, f_near)
         self.mat_trans: SqMatrix = translation_matrix(x=0.0, y=0.0, z=3.0)
@@ -60,6 +51,28 @@ class Game3DEngine:  # The main class to start the Engine
         self.mat_world: SqMatrix = SqMatrix(4)
 
         self.light_direction = Vec3D((0.0, 0.0, -1.0))
+=======
+        # -------------------------------------------------------------------------------------- #
+        self.mat_prjct      : np.ndarray = projection_matrix(f_aspect_ratio, f_fov_rad, f_far, f_near)
+        self.mat_trans      : np.ndarray = translation_matrix(x=0.0, y=0.0, z=15.0)
+        self.mat_ident      : np.ndarray = identity_matrix()
+
+        self.vt_camera      : Vec3D      = Vec3D()
+        self.look_dir       : Vec3D      = Vec3D((0,0,1))
+
+        self.f_theta        : float      = 0.0
+        self.mat_rot_z      : np.ndarray = identity_matrix()
+        self.mat_rot_x      : np.ndarray = identity_matrix()
+        self.mat_world      : np.ndarray = identity_matrix()
+        self.light_direction: Vec3D      = Vec3D((0.0, 0.0, -1.0))
+
+        self.v_upward       : Vec3D      = Vec3D((0, 1, 0))
+        self.v_target       : Vec3D      = self.vt_camera + self.look_dir
+        self.mat_camera     : np.ndarray = point_at_matrix(self.vt_camera, self.v_target, self.v_upward)
+
+        self.mat_view       : np.ndarray = quick_inverse(self.mat_camera)
+        # -------------------------------------------------------------------------------------- #
+>>>>>>> Stashed changes
 
         # Pygame init func
         pg.init()
@@ -84,14 +97,31 @@ class Game3DEngine:  # The main class to start the Engine
         pg.display.set_caption(f'{self.clock.get_fps():.1f}')
         self.current_time = time() - self.init_time
 
-        # Changing angle value as the cube rotates.
-        self.f_theta = self.current_time * alpha_speed
+        # # Changing angle value as the axis rotates.
+        # self.f_theta = self.current_time * alpha_speed
 
         # Updating the rotational matrices with the new theta value.
         self.mat_rot_z = rotation_matrix_z(self.f_theta)
         self.mat_rot_x = rotation_matrix_x(self.f_theta)
 
         self.mat_world = self.mat_rot_z * self.mat_rot_x * self.mat_trans
+
+    def check_event(self):  # Check for User Input / an Event
+        # Event loop
+        for event in pg.event.get():
+
+            # Exit the Engine if either escape or the quit button is pressed.
+            if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.type == pg.K_ESCAPE):
+                # End the PyGame instance
+                pg.quit()
+
+                # Exit the interpreter
+                sys.exit()
+            if event.type == pg.K_w: 
+                self.vt_camera.y += 8.0 * self.current_time
+            
+            if event.type == pg.K_s: 
+                self.vt_camera.y -= 8.0 * self.current_time
 
     def draw_triangles(self):  # Draw triangles on the screen.
 
@@ -100,7 +130,7 @@ class Game3DEngine:  # The main class to start the Engine
         triangles: list = []
 
         # iterate through every triangle in the model.
-        for triangle in mesh_cube:
+        for triangle in mesh:
 
             # rotate that face by the Z-axis
             tri_rot_z = self.rotate_triangle_z(triangle)
@@ -125,8 +155,10 @@ class Game3DEngine:  # The main class to start the Engine
             # if the face is not in view, do not render it.
             if dot_product(normal, (tri_rot_z_rot_x_trans.vectors[0] - self.vt_camera)) < 0:
 
+                tri_view = self.view_triangle(tri_rot_z_rot_x_trans)
+                
                 # project 3d to 2d:
-                tri_rot_z_rot_x_trans_prjct = self.project_triangle(tri_rot_z_rot_x_trans)
+                tri_rot_z_rot_x_trans_prjct = self.project_triangle(tri_view)
 
                 # Normalizing the directional light.
                 len_light_direction = vector_length(self.light_direction)
@@ -144,8 +176,14 @@ class Game3DEngine:  # The main class to start the Engine
 
             # draws a filled triangle on the screen.
             fill_triangle(self.screen, triangle, color=lit_fill_color)
+<<<<<<< Updated upstream
             # draws the outline of the triangle on the screen.
             # draw_triangle(self.screen, triangle, color='black', width=)
+=======
+
+            # # draws the outline of the triangle on the screen.
+            # draw_triangle(self.screen, triangle, color='black', width=1)
+>>>>>>> Stashed changes
 
     # Move a triangle in 3D space.
     def translate_triangle(self, triangle: Triangle):
@@ -205,6 +243,18 @@ class Game3DEngine:  # The main class to start the Engine
 
         return Triangle(vector_list)  # Returns the projected Triangle
 
+    def view_triangle(self, triangle: Triangle):
+        view_mat = self.mat_view
+        vector_list: list = []
+
+        # Iterates through each vector
+        for vector in triangle.vectors:
+            # multiplies it to the view matrix and appends it to a set vector list.
+            out_vec = multiply_matrix_vector_factory(vector, view_mat)
+            vector_list.append(out_vec.div(out_vec.w))
+
+        return Triangle(vector_list)  # Returns the View Triangle
+
     # World matrix optimizes all the calculations to be done only once with this matrix.
     def world_triangle(self, triangle: Triangle):
 
@@ -229,7 +279,7 @@ class Game3DEngine:  # The main class to start the Engine
 
     def run(self):  # Starts all the Functions
         while True:
-            check_event()               # Check for user input
+            self.check_event()               # Check for user input
             self.update()               # Update data
             self.draw_triangles()       # Draw visuals
 
@@ -239,8 +289,14 @@ if __name__ == "__main__":
 
     # PUBLIC VARIABLES
 
+<<<<<<< Updated upstream
     cube = Mesh("UnitCube")
     cube.tris(load_from_obj_file('cube.obj', 1.0))
     mesh_cube = cube()
+=======
+    axis = Mesh("Unitaxis")
+    axis.tris(load_from_obj_file('axis.obj', 1.0))
+    mesh = axis()
+>>>>>>> Stashed changes
 
     ge3d.run()

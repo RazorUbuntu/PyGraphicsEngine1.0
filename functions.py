@@ -75,7 +75,53 @@ def multiply_matrix_vector_factory(inp_vec: Vec3D, matrix: SqMatrix) -> Vec3D:
 
     return out_vec
 
+def point_at_matrix(position: Vec3D, target: Vec3D, upward: Vec3D) -> np.ndarray:
 
+    # Calculate new forward direction
+    new_forward: Vec3D = target - position
+    new_forward = vector_normalise(new_forward)
+    
+    # Calculate new upward direction
+    TEMP: Vec3D = new_forward * dot_product(upward, new_forward)
+    new_upward: Vec3D = upward - TEMP
+    new_upward = vector_normalise(new_upward)
+
+    # Horizontal direction is the cross product
+    new_horizontal = cross_product(new_upward, new_forward)
+
+    # Create matrix
+    matrix: np.ndarray = np.array(empty_mat_data)
+    matrix[0][0] = new_horizontal.x
+    matrix[0][1] = new_horizontal.y
+    matrix[0][2] = new_horizontal.z
+    matrix[1][0] = new_upward.x
+    matrix[1][1] = new_upward.y
+    matrix[1][2] = new_upward.z
+    matrix[2][0] = new_forward.x
+    matrix[2][1] = new_forward.y
+    matrix[2][2] = new_forward.z
+    matrix[3][0] = position.x
+    matrix[3][1] = position.y
+    matrix[3][2] = position.z
+    return matrix
+
+def quick_inverse(matrix_: np.ndarray) -> np.ndarray:
+    matrix: np.ndarray = np.array(empty_mat_data)
+    matrix[0][0] = matrix_[0][0] 
+    matrix[0][1] = matrix_[1][0] 
+    matrix[0][2] = matrix_[2][0] 
+    matrix[1][0] = matrix_[0][1] 
+    matrix[1][1] = matrix_[1][1] 
+    matrix[1][2] = matrix_[2][1] 
+    matrix[2][0] = matrix_[0][2] 
+    matrix[2][1] = matrix_[1][2] 
+    matrix[2][2] = matrix_[2][2] 
+    matrix[3][0] = (matrix_[3][0] * matrix[0][0] + matrix_[3][1] * matrix[1][0] + matrix_[3][2] * matrix[2][0])
+    matrix[3][1] = (matrix_[3][0] * matrix[0][1] + matrix_[3][1] * matrix[1][1] + matrix_[3][2] * matrix[2][1]) 
+    matrix[3][2] = (matrix_[3][0] * matrix[0][2] + matrix_[3][1] * matrix[1][2] + matrix_[3][2] * matrix[2][2]) 
+    matrix[3][3] = 1.0
+    return matrix
+    
 #   Pre-Defined Matrices   #
 
 def identity_matrix() -> SqMatrix:
