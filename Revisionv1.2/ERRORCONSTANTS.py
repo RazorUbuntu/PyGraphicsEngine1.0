@@ -1,1 +1,2 @@
-ERROR10001 = 'Undefined Value'
+class ERROR:
+    ERROR10001 = 'Undefined Value'

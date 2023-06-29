@@ -16,7 +16,7 @@ class Mesh():
         self.triangles = seq_of_triangles
         self.name = name
 
-    def load_objects_from_files(self, file_path, name: str = None):
+    def load_objects_from_files(self, file_path, name: str = None, size: float = 1.0):
         
         # set some empty lists.
         self.name = name
@@ -59,7 +59,8 @@ class Mesh():
             logging.error(f'The File at {file_path} does not exist or is not of .obj data type!')
 
     def __repr__(self):
-        return f'Mesh {self.name}: with Triangles:\n{self.triangles}'
+        return f'Mesh {self.name}: with Triangles:\n((({self.triangles})))'
 
-Cube = Mesh().load_objects_from_files('C:\\Users\\saadi\\OneDrive\\Documents\\GitHub\\PyGraphics\\PyGraphicsEngine1.0\\Revisionv1.2\\fMesh.py', 'Cube')
+Cube = Mesh()
+Cube.load_objects_from_files('C:\\Users\\saadi\\OneDrive\\Documents\\GitHub\\PyGraphics\\PyGraphicsEngine1.0\\Revisionv1.2\\cube.obj', 'Cube')
 print(Cube)
