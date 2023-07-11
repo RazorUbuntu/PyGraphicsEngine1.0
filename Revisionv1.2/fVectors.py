@@ -4,6 +4,7 @@
 
 import logging
 from ERRORCONSTANTS import *
+import clear_screen
 
 #### CLASS DEFINITION ####
 

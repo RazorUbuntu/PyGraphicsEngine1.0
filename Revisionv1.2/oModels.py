@@ -1,4 +1,4 @@
-from fMesh import *
+from fMesh import * # Also imports fTriangles, fVectors, logging and ERRORCONSTANTS
 
 CubePath = 'C:\\Users\\saadi\\OneDrive\\Documents\\GitHub\\PyGraphics\\PyGraphicsEngine1.0\\Revisionv1.2\\cube.obj'
 Cube = Mesh()

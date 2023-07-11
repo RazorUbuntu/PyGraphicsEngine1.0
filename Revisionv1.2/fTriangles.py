@@ -1,12 +1,7 @@
 # THIS SCRIPT IS DEDICATED TO TRIANGLES, THE CLASS, AND RELATED FUNCTIONS
 
 ####  IMPORT MODULES  ####
-
-import logging
-import ERRORCONSTANTS
-from fVectors import *
-from SETTINGS import clear_screen as CS
-CS()
+from fVectors import * # Also imports logging and ERRORCONSTANTS | clear_screen
 
 #### CLASS DEFINITION ####
 

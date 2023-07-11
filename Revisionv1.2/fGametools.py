@@ -1,5 +1,5 @@
 from fNumPy import *
-from fTriangles import *
+from fTriangles import * # Also imports fVectors, logging and ERRORCONSTANTS | clear_screen
 from pygame import draw
 
 def Transform(triangle: Triangle, shift_vector : Vector3D, *args) -> Triangle:
@@ -25,7 +25,7 @@ def Sorting(triangles: list) -> list:
                 + __triangle__.vectors[2].z) / 3.0)
 
 def Lighting(triangle: Triangle) -> Triangle:
-    
+    pass
 
 def Projection(triangle: Triangle) -> Triangle:
     __triangle__: list = []

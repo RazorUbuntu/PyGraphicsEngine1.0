@@ -2,12 +2,7 @@
 
 ####  IMPORT MODULES  ####
 
-import logging
-import ERRORCONSTANTS
-from fVectors import *
-from fTriangles import *
-from SETTINGS import clear_screen as CS
-CS()
+from fTriangles import * # Also imports fVectors, logging and ERRORCONSTANTS | clear_screen
 
 #### CLASS DEFINITION ####
 
@@ -69,7 +64,7 @@ class Mesh():
                         f'{self.triangles}\n',
                         '---------------------------------------------------------------------------------------------------\n'])
 
-    def represent(self, _range: int = 2) -> None:
+    def represent(self, _range: int = 1) -> None:
         result: list = ['XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
                         f'[Mesh: {self.name}] with [ID: {self.mesh_id}]: with Triangles:',
                         'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n',]

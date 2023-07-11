@@ -2,7 +2,6 @@
 
 # Import math
 from math import tan
-from os import system
 
 # Game settings
 RES = WIDTH, HEIGHT = 720, 720
@@ -16,10 +15,6 @@ f_far = 1000.0
 f_fov = 90
 f_aspect_ratio = WIDTH / HEIGHT
 f_fov_rad = 1.0 / tan(f_fov * 0.5 / 180 * 3.14159)
-
-
-def empty_mat_data(size): return [[0.0 for _ in range(size)] for __ in range(size)]
-def clear_screen(): system('cls')
 
 # Colours:
 
