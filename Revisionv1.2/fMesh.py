@@ -6,17 +6,21 @@ import logging
 import ERRORCONSTANTS
 from fVectors import *
 from fTriangles import *
-from os import system
-#### CLASS DEFINITION ####
+from SETTINGS import clear_screen as CS
+CS()
 
+#### CLASS DEFINITION ####
 
 class Mesh():
 
-    def __init__(self, name: str = None, seq_of_triangles: list = ()):
+    mesh_id = 0
+
+    def __init__(self, name: str = None, seq_of_triangles: list = ()) -> None:
         self.triangles = seq_of_triangles
         self.name = name
+        self.mesh_id = Mesh.increment()
 
-    def load_objects_from_files(self, file_path, name: str = None, size: float = 1.0):
+    def load_objects_from_files(self, file_path, name: str = None, size: float = 1.0, start: int = 1) -> None:
         
         # set some empty lists.
         self.name = name
@@ -49,7 +53,7 @@ class Mesh():
                 vector_list = []
                 
                 for idx in triangle:
-                    vector_list.append(Vector3D(vertices[idx]))
+                    vector_list.append(Vector3D(vertices[idx - start]))
                     
                 self.triangles.append(Triangle(vector_list))
 
@@ -58,9 +62,36 @@ class Mesh():
             system('cls')
             logging.error(f'The File at {file_path} does not exist or is not of .obj data type!')
 
-    def __repr__(self):
-        return f'Mesh {self.name}: with Triangles:\n((({self.triangles})))'
+    def __repr__(self) -> str:
+        return ''.join(['XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n',
+                        f'[Mesh: {self.name}] with [ID: {self.mesh_id}]: with Triangles:\n',
+                        'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n',
+                        f'{self.triangles}\n',
+                        '---------------------------------------------------------------------------------------------------\n'])
 
-Cube = Mesh()
-Cube.load_objects_from_files('C:\\Users\\saadi\\OneDrive\\Documents\\GitHub\\PyGraphics\\PyGraphicsEngine1.0\\Revisionv1.2\\cube.obj', 'Cube')
-print(Cube)
+    def represent(self, _range: int = 2) -> None:
+        result: list = ['XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+                        f'[Mesh: {self.name}] with [ID: {self.mesh_id}]: with Triangles:',
+                        'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n',]
+        
+        for triangle in self.triangles[:_range]:
+            result.append(triangle)
+        
+
+        result += ['-------------------------------------------------------------------------',
+                   f'{len(self.triangles) - _range * 2} Triangles in between {self.triangles[_range - 1].tri_id} to {self.triangles[-_range].tri_id}',
+                   '-------------------------------------------------------------------------\n']
+        
+        for triangle in self.triangles[-_range:]:
+            result.append(triangle)
+
+        result.append('---------------------------------------------------------------------------------------------------')
+
+        for line in result: print(line)
+        
+        
+    @classmethod
+    def increment(cls) -> None:
+        
+        cls.mesh_id += 1
+        return cls.mesh_id

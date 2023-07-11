@@ -7,13 +7,13 @@ from ERRORCONSTANTS import *
 
 #### CLASS DEFINITION ####
 
-vec_id_num: int = 0
 class Vector3D:
+
+    vec_id = 0
 
     def __init__(self, coords = (0, 0, 0, 1)):
         
-        global vec_id_num
-        self.id_num = vec_id_num
+        self.id_num = Vector3D.increment()
         
         if len(coords) == 3:
             self.x, self.y, self.z = coords
@@ -24,15 +24,14 @@ class Vector3D:
             
         else:
             self.x, self.y, self.z, self.alpha = (None, None, None, None)
-        vec_id_num += 1
 
 
     def __repr__(self) -> str:
         
         if None in (self.x, self.y, self.z, self.alpha):
-            return f'Vector {self.id_num}: {ERROR.ERROR10001}.'
+            return f'Vector <{self.id_num}>: {ERROR.ERROR10001}.'
         
-        return f'Vector {self.id_num}: with Co-ordinates:\nx = {self.x}; y = {self.y}; z = {self.z}; alpha = {self.alpha}\n\n'
+        return f'Vector <{self.id_num}>: with Co-ordinates:\nx = {self.x}; y = {self.y}; z = {self.z}; alpha = {self.alpha}\n\n'
 
 
     def __call__(self):
@@ -76,5 +75,39 @@ class Vector3D:
         _vector.z = self.z / const
         return _vector
 
+    def rep_as_list(self)-> list:
+        return [self.x, self.y, self.z, self.w]
+    
+    @classmethod
+    def increment(cls):
+        cls.vec_id += 1
+        return cls.vec_id
+
 
 #### fUNCTIONS DEFINE ####
+
+def dot_product(_vector_a, _vector_b) -> float:
+    return _vector_a.x * _vector_b.x + _vector_a.y * _vector_b.y + _vector_a.z * _vector_b.z
+
+
+def vector_length(_vector_a) -> float:
+    return sqrt(dot_product(_vector_a, _vector_a))
+
+
+def vector_normalise(_vector_a) -> Vector3D:
+    l: float = vector_length(_vector_a) + 1e-9
+    _vector = Vec3D()
+    _vector.x = _vector_a.x / l
+    _vector.y = _vector_a.y / l
+    _vector.z = _vector_a.z / l
+    return _vector
+
+
+def cross_product(_vector_a, _vector_b) -> Vector3D:
+    _vector = Vec3D()
+
+    _vector.x = _vector_a.y * _vector_b.z - _vector_a.z * _vector_b.y
+    _vector.y = _vector_a.z * _vector_b.x - _vector_a.x * _vector_b.z
+    _vector.z = _vector_a.x * _vector_b.y - _vector_a.y * _vector_b.x
+
+    return _vector
