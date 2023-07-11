@@ -17,4 +17,7 @@ def Transform(triangle: Triangle, shift_vector : Vector3D, *args) -> Triangle:
 
     return __triangle__
 
+def Sorting(triangles: list) -> list:
+    
+    return sorted(triangles, key=lambda _triangle: lambda_sort_triangles(_triangle))
 
